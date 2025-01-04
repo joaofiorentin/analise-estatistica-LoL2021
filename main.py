@@ -3,13 +3,22 @@ import dash
 from dash import dcc, html
 import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
 
 # Carregar o dataset
 df = pd.read_csv("C:/Users/João/Desktop/COISAS DO JOÃO/LoL_2021/League of Legends 2021 World Championship Play-In Groups Statistics - Raw Data.csv")
 
 # Iniciar a aplicação Dash
 app = dash.Dash(__name__)
+
+# Carregar fontes do Google Fonts
+app.layout = html.Div(
+    children=[  
+        html.Link(
+            rel='stylesheet', 
+            href='https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Lato:wght@400;700&display=swap'
+        ),
+    ]
+)
 
 # Função para gerar gráficos de distribuição aprimorados
 def generate_histogram(df, column, title, color='royalblue', nbins=15):
@@ -53,28 +62,10 @@ def generate_histogram(df, column, title, color='royalblue', nbins=15):
     
     return fig
 
-# Função para gráficos de dispersão com linha de tendência
+# Função para gráficos de dispersão
 def generate_scatter(df, x_col, y_col, color_col, title, marker_size=10):
     fig = px.scatter(df, x=x_col, y=y_col, color=color_col, title=title)
     fig.update_traces(marker=dict(size=marker_size, opacity=0.7))
-    
-    # Regressão linear para a linha de tendência
-    x = df[x_col]
-    y = df[y_col]
-    # Calcular os coeficientes da regressão linear (y = mx + b)
-    m, b = np.polyfit(x, y, 1)
-    # Gerar os valores da linha de tendência
-    trendline_y = m * x + b
-    
-    # Adicionar a linha de tendência ao gráfico
-    fig.add_trace(go.Scatter(
-        x=x, 
-        y=trendline_y, 
-        mode='lines', 
-        name='Linha de Tendência', 
-        line=dict(color='red', width=3, dash='dash')
-    ))
-    
     fig.update_layout(
         plot_bgcolor='rgba(255, 255, 255, 0.9)',
         paper_bgcolor='rgba(255, 255, 255, 0.9)',
@@ -97,13 +88,7 @@ def generate_boxplot(df, x_col, y_col, title, color='indianred'):
 
 # Gráficos
 fig_kda = generate_histogram(df, "Kills", "Distribuição de Kills")
-fig_kda_relacao = generate_scatter(
-    df, 
-    "Kills", 
-    "Deaths", 
-    "Result", 
-    "Relação entre Kills e Deaths por Resultado"
-)
+fig_kda_relacao = generate_scatter(df, "Kills", "Deaths", "Result", "Relação entre Kills e Deaths por Resultado")
 fig_gold = generate_boxplot(df, "Team", "Gold Earned", "Distribuição de Gold Earned por Time", color='indianred')
 fig_champion_damage = generate_boxplot(df, "Position", "Champion Damage Share", "Champion Damage Share por Position", color='seagreen')
 
